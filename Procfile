@@ -1,1 +1,1 @@
-web: /app/bin/start_with_oauth2_proxy.sh vite
+web: /app/bin/start_with_oauth2_proxy.sh yarn serve
