@@ -1,1 +1,1 @@
-web: yarn serve /app/src/main.js
+web: yarn serve main.js
