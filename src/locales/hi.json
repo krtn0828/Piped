@@ -5,7 +5,8 @@
         "register": "रजिस्टर करें",
         "login": "लॉग इन करें",
         "preferences": "प्राथमिकताएँ",
-        "subscriptions": "सदस्यता"
+        "subscriptions": "सदस्यता",
+        "feed": "फ़ीड"
     },
     "actions": {
         "subscribe": "सदस्यता लें",
@@ -62,7 +63,8 @@
         "videos": "वीडियो",
         "watched": "पहले ही देखा",
         "ratings_disabled": "रेटिंग अक्षम",
-        "chapters": "चैप्टर"
+        "chapters": "चैप्टर",
+        "live": "{0} लाइव"
     },
     "login": {
         "password": "पासवर्ड",

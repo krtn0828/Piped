@@ -77,7 +77,7 @@
                     v-if="authenticated"
                     class="btn relative ml-auto"
                     @click="subscribeHandler"
-                    v-text="$t(`actions.${subscribed ? 'unsubscribe' : 'subscribe'}`)"
+                    v-t="`actions.${subscribed ? 'unsubscribe' : 'subscribe'}`"
                 />
             </div>
 
@@ -86,11 +86,11 @@
             <button
                 class="btn mb-2"
                 @click="showDesc = !showDesc"
-                v-text="$t(`actions.${showDesc ? 'minimize_description' : 'show_description'}`)"
+                v-t="`actions.${showDesc ? 'minimize_description' : 'show_description'}`"
             />
             <!-- eslint-disable-next-line vue/no-v-html -->
             <p v-show="showDesc" class="break-words" v-html="purifyHTML(video.description)" />
-            <Chapters :chapters="video.chapters" @seek="navigate" />
+            <Chapters v-if="video?.chapters?.length > 0" :chapters="video.chapters" @seek="navigate" />
             <div
                 v-if="showDesc && sponsors && sponsors.segments"
                 v-text="`${$t('video.sponsor_segments')}: ${sponsors.segments.length}`"
@@ -122,7 +122,7 @@
                 <a
                     class="btn mb-2 sm:hidden"
                     @click="showRecs = !showRecs"
-                    v-text="$t(`actions.${showRecs ? 'minimize_recommendations' : 'show_recommendations'}`)"
+                    v-t="`actions.${showRecs ? 'minimize_recommendations' : 'show_recommendations'}`"
                 />
                 <hr v-show="showRecs" />
                 <div v-show="showRecs || !smallView">
@@ -282,8 +282,11 @@ export default {
                         if (!this.isEmbed) this.fetchSubscribedStatus();
 
                         this.video.description = this.video.description
-                            .replaceAll("http://www.youtube.com", "")
-                            .replaceAll("https://www.youtube.com", "")
+                            .replaceAll(/(?:http(?:s)?:\/\/)?(?:www\.)?youtube\.com(\/[/a-zA-Z0-9?=&]*)/gm, "$1")
+                            .replaceAll(
+                                /(?:http(?:s)?:\/\/)?(?:www\.)?youtu\.be\/(?:watch\?v=)?([/a-zA-Z0-9?=&]*)/gm,
+                                "/watch?v=$1",
+                            )
                             .replaceAll("\n", "<br>");
                     }
                 });

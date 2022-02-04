@@ -13,7 +13,7 @@
             </a>
             <a class="ml-2" href="https://github.com/TeamPiped/Piped#donations">
                 <font-awesome-icon :icon="['fab', 'bitcoin']" />
-                <span v-text="$t('actions.donations')" />
+                <span v-t="'actions.donations'" />
             </a>
         </footer>
     </div>
@@ -26,17 +26,6 @@ export default {
         NavBar,
     },
     mounted() {
-        if (window.location.pathname === "/" || window.location.pathname.length == 0)
-            switch (this.getPreferenceString("homepage", "trending")) {
-                case "trending":
-                    break;
-                case "feed":
-                    this.$router.push("/feed");
-                    return;
-                default:
-                    break;
-            }
-
         if (this.getPreferenceBoolean("watchHistory", false))
             if ("indexedDB" in window) {
                 const request = indexedDB.open("piped-db", 1);

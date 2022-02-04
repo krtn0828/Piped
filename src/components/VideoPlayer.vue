@@ -1,13 +1,6 @@
 <template>
-    <div class="w-full">
-        <div
-            ref="container"
-            data-shaka-player-container
-            style="width: 100%; height: 100%; background: #000"
-            :style="!isEmbed ? { 'max-height': '75vh', 'min-height': '250px' } : {}"
-        >
-            <video ref="videoEl" data-shaka-player class="w-full" :autoplay="shouldAutoPlay" :loop="selectedAutoLoop" />
-        </div>
+    <div ref="container" data-shaka-player-container :class="{ 'player-container': !isEmbed }">
+        <video ref="videoEl" data-shaka-player class="w-full" :autoplay="shouldAutoPlay" :loop="selectedAutoLoop" />
     </div>
 </template>
 
@@ -16,6 +9,7 @@ import("shaka-player/dist/controls.css");
 const shaka = import("shaka-player/dist/shaka-player.ui.js");
 import muxjs from "mux.js";
 window.muxjs = muxjs;
+const hotkeys = import("hotkeys-js");
 
 export default {
     props: {
@@ -69,116 +63,115 @@ export default {
     },
     mounted() {
         if (!this.shaka) this.shakaPromise = shaka.then(shaka => shaka.default).then(shaka => (this.shaka = shaka));
+        if (!this.$hotkeys)
+            this.hotkeysPromise = hotkeys.then(mod => mod.default).then(hotkeys => (this.$hotkeys = hotkeys));
     },
     activated() {
-        import("hotkeys-js")
-            .then(mod => mod.default)
-            .then(hotkeys => {
-                this.hotkeys = hotkeys;
-                var self = this;
-                hotkeys(
-                    "f,m,j,k,l,c,space,up,down,left,right,0,1,2,3,4,5,6,7,8,9,shift+,,shift+.",
-                    function (e, handler) {
-                        const videoEl = self.$refs.videoEl;
-                        switch (handler.key) {
-                            case "f":
-                                self.$ui.getControls().toggleFullScreen();
-                                e.preventDefault();
-                                break;
-                            case "m":
-                                videoEl.muted = !videoEl.muted;
-                                e.preventDefault();
-                                break;
-                            case "j":
-                                videoEl.currentTime = Math.max(videoEl.currentTime - 15, 0);
-                                e.preventDefault();
-                                break;
-                            case "l":
-                                videoEl.currentTime = videoEl.currentTime + 15;
-                                e.preventDefault();
-                                break;
-                            case "c":
-                                self.$player.setTextTrackVisibility(!self.$player.isTextTrackVisible());
-                                e.preventDefault();
-                                break;
-                            case "k":
-                            case "space":
-                                if (videoEl.paused) videoEl.play();
-                                else videoEl.pause();
-                                e.preventDefault();
-                                break;
-                            case "up":
-                                videoEl.volume = Math.min(videoEl.volume + 0.05, 1);
-                                e.preventDefault();
-                                break;
-                            case "down":
-                                videoEl.volume = Math.max(videoEl.volume - 0.05, 0);
-                                e.preventDefault();
-                                break;
-                            case "left":
-                                videoEl.currentTime = Math.max(videoEl.currentTime - 5, 0);
-                                e.preventDefault();
-                                break;
-                            case "right":
-                                videoEl.currentTime = videoEl.currentTime + 5;
-                                e.preventDefault();
-                                break;
-                            case "0":
-                                videoEl.currentTime = 0;
-                                e.preventDefault();
-                                break;
-                            case "1":
-                                videoEl.currentTime = videoEl.duration * 0.1;
-                                e.preventDefault();
-                                break;
-                            case "2":
-                                videoEl.currentTime = videoEl.duration * 0.2;
-                                e.preventDefault();
-                                break;
-                            case "3":
-                                videoEl.currentTime = videoEl.duration * 0.3;
-                                e.preventDefault();
-                                break;
-                            case "4":
-                                videoEl.currentTime = videoEl.duration * 0.4;
-                                e.preventDefault();
-                                break;
-                            case "5":
-                                videoEl.currentTime = videoEl.duration * 0.5;
-                                e.preventDefault();
-                                break;
-                            case "6":
-                                videoEl.currentTime = videoEl.duration * 0.6;
-                                e.preventDefault();
-                                break;
-                            case "7":
-                                videoEl.currentTime = videoEl.duration * 0.7;
-                                e.preventDefault();
-                                break;
-                            case "8":
-                                videoEl.currentTime = videoEl.duration * 0.8;
-                                e.preventDefault();
-                                break;
-                            case "9":
-                                videoEl.currentTime = videoEl.duration * 0.9;
-                                e.preventDefault();
-                                break;
-                            case "shift+,":
-                                self.$player.trickPlay(Math.max(videoEl.playbackRate - 0.25, 0.25));
-                                break;
-                            case "shift+.":
-                                self.$player.trickPlay(Math.min(videoEl.playbackRate + 0.25, 2));
-                                break;
-                        }
-                    },
-                );
-            });
+        this.hotkeysPromise.then(() => {
+            var self = this;
+            this.$hotkeys(
+                "f,m,j,k,l,c,space,up,down,left,right,0,1,2,3,4,5,6,7,8,9,shift+,,shift+.",
+                function (e, handler) {
+                    const videoEl = self.$refs.videoEl;
+                    switch (handler.key) {
+                        case "f":
+                            self.$ui.getControls().toggleFullScreen();
+                            e.preventDefault();
+                            break;
+                        case "m":
+                            videoEl.muted = !videoEl.muted;
+                            e.preventDefault();
+                            break;
+                        case "j":
+                            videoEl.currentTime = Math.max(videoEl.currentTime - 15, 0);
+                            e.preventDefault();
+                            break;
+                        case "l":
+                            videoEl.currentTime = videoEl.currentTime + 15;
+                            e.preventDefault();
+                            break;
+                        case "c":
+                            self.$player.setTextTrackVisibility(!self.$player.isTextTrackVisible());
+                            e.preventDefault();
+                            break;
+                        case "k":
+                        case "space":
+                            if (videoEl.paused) videoEl.play();
+                            else videoEl.pause();
+                            e.preventDefault();
+                            break;
+                        case "up":
+                            videoEl.volume = Math.min(videoEl.volume + 0.05, 1);
+                            e.preventDefault();
+                            break;
+                        case "down":
+                            videoEl.volume = Math.max(videoEl.volume - 0.05, 0);
+                            e.preventDefault();
+                            break;
+                        case "left":
+                            videoEl.currentTime = Math.max(videoEl.currentTime - 5, 0);
+                            e.preventDefault();
+                            break;
+                        case "right":
+                            videoEl.currentTime = videoEl.currentTime + 5;
+                            e.preventDefault();
+                            break;
+                        case "0":
+                            videoEl.currentTime = 0;
+                            e.preventDefault();
+                            break;
+                        case "1":
+                            videoEl.currentTime = videoEl.duration * 0.1;
+                            e.preventDefault();
+                            break;
+                        case "2":
+                            videoEl.currentTime = videoEl.duration * 0.2;
+                            e.preventDefault();
+                            break;
+                        case "3":
+                            videoEl.currentTime = videoEl.duration * 0.3;
+                            e.preventDefault();
+                            break;
+                        case "4":
+                            videoEl.currentTime = videoEl.duration * 0.4;
+                            e.preventDefault();
+                            break;
+                        case "5":
+                            videoEl.currentTime = videoEl.duration * 0.5;
+                            e.preventDefault();
+                            break;
+                        case "6":
+                            videoEl.currentTime = videoEl.duration * 0.6;
+                            e.preventDefault();
+                            break;
+                        case "7":
+                            videoEl.currentTime = videoEl.duration * 0.7;
+                            e.preventDefault();
+                            break;
+                        case "8":
+                            videoEl.currentTime = videoEl.duration * 0.8;
+                            e.preventDefault();
+                            break;
+                        case "9":
+                            videoEl.currentTime = videoEl.duration * 0.9;
+                            e.preventDefault();
+                            break;
+                        case "shift+,":
+                            self.$player.trickPlay(Math.max(videoEl.playbackRate - 0.25, 0.25));
+                            break;
+                        case "shift+.":
+                            self.$player.trickPlay(Math.min(videoEl.playbackRate + 0.25, 2));
+                            break;
+                    }
+                },
+            );
+        });
     },
     deactivated() {
-        this.destroy();
+        this.destroy(true);
     },
     unmounted() {
-        this.destroy();
+        this.destroy(true);
     },
     methods: {
         async loadVideo() {
@@ -382,6 +375,7 @@ export default {
             const url = "/watch?v=" + this.video.id;
 
             if (!this.$ui) {
+                this.destroy();
                 const OpenButton = class extends shaka.ui.Element {
                     constructor(parent, controls) {
                         super(parent, controls);
@@ -520,7 +514,7 @@ export default {
                 this.$refs.videoEl.currentTime = time;
             }
         },
-        destroy() {
+        destroy(hotkeys) {
             if (this.$ui) {
                 this.$ui.destroy();
                 this.$ui = undefined;
@@ -530,7 +524,7 @@ export default {
                 this.$player.destroy();
                 this.$player = undefined;
             }
-            if (this.hotkeys) this.hotkeys.unbind();
+            if (this.$hotkeys && hotkeys) this.$hotkeys.unbind();
             if (this.$refs.container) this.$refs.container.querySelectorAll("div").forEach(node => node.remove());
         },
     },
@@ -538,11 +532,16 @@ export default {
 </script>
 
 <style>
-.shaka-text-container > div {
-    height: auto !important;
-    width: auto !important;
-    top: auto !important;
-    left: auto !important;
+.player-container {
+    @apply max-h-75vh min-h-64 bg-black;
+}
+
+.shaka-video-container .material-icons-round {
+    @apply !text-xl;
+}
+
+.shaka-current-time {
+    @apply !text-base;
 }
 
 .shaka-text-container * {
